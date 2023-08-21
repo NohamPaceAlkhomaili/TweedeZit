@@ -7,6 +7,7 @@ let height = context.canvas.height;
 let carX = 10; 
 let carSpeed = 0; 
 let driving = false; 
+const smokeTrails = []; 
 
 setup();
 animate();
@@ -70,17 +71,30 @@ function drawCar(x, y) {
   context.fillRect(x , y - 20 ,6,5); // This code draws the rear lights
 
 }
+
 function moveCar() {
   if (driving) {
     carX += carSpeed;
 
-    // This code draws a new car when the other leaves the canvas
+    // Create smokeTrails
+    smokeTrails.push({ x: carX + 15, y: height / 2 + 110, radius: Math.random() * 5 + 2 });
+
     if (carX > width) {
-      carX = -120; 
-      drawCar(carX, height / 2 + 100); // Draw the new car at the starting point
+      carX = -120;
+      drawCar(carX, height / 2 + 100);
     } else if (carX < -120) {
       carX = width;
-      drawCar(carX, height / 2 + 100); // Draw the new car at the starting point
+      drawCar(carX, height / 2 + 100);
+    }
+  }
+}
+
+
+function updatesmokeTrails() {
+  for (let i = smokeTrails.length - 1; i >= 0; i--) {
+    smokeTrails[i].y -= 2; // Move smokeTrails upwards
+    if (smokeTrails[i].y < 0) {
+      smokeTrails.splice(i, 1); // This code removes the smoketrails that leave the canvas
     }
   }
 }
@@ -95,6 +109,15 @@ function animate() {
   context.fillRect(0, 0, width, height);
   context.fillStyle = "white";
   context.fillText("Noham Pace", width / 2, height / 2 + 24);
+
+  updatesmokeTrails();
+
+  context.fillStyle = "rgba(255, 255, 255, 0.5)";
+  for (const smokeTrail of smokeTrails) {
+    context.beginPath();
+    context.arc(smokeTrail.x, smokeTrail.y, smokeTrail.radius, 0, 2 * Math.PI);
+    context.fill();
+  }
 
   moveCar();
   drawCar(carX, height / 2 + 100);
@@ -115,7 +138,7 @@ function handleKeyDown(event) {
 // This code stops the car from moving when the key is not pressed
 function handleKeyUp(event) {
   if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
-    carSpeed = 0; // Stop the car when the key is released
-    driving = false; // Stop driving
+    carSpeed = 0; 
+    driving = false; 
   }
 }
