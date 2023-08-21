@@ -5,12 +5,16 @@ import * as Utils from "./scripts/utils.js";
 let width = context.canvas.width;
 let height = context.canvas.height;
 let carX = 10; 
-let carSpeed = 2; 
-let driving = true; 
+let carSpeed = 0; 
+let driving = false; 
 
 setup();
 animate();
-drawCar(10, 285);
+drawCar(carX, height / 2 + 100); 
+
+// Eventhandlers
+document.addEventListener("keydown", handleKeyDown);
+document.addEventListener("keyup", handleKeyUp);
 
 // Setup code background + name
 function setup() {
@@ -66,7 +70,6 @@ function drawCar(x, y) {
   context.fillRect(x , y - 20 ,6,5); // This code draws the rear lights
 
 }
-
 function moveCar() {
   if (driving) {
     carX += carSpeed;
@@ -74,14 +77,16 @@ function moveCar() {
     // This code draws a new car when the other leaves the canvas
     if (carX > width) {
       carX = -120; 
-      drawCar(carX + 15, height / 2 + 100); 
+      drawCar(carX, height / 2 + 100); // Draw the new car at the starting point
+    } else if (carX < -120) {
+      carX = width;
+      drawCar(carX, height / 2 + 100); // Draw the new car at the starting point
     }
   }
 }
 
-
 function animate() {
-  // This code resets the background
+  // Resets the background
   let gradient = context.createLinearGradient(0, 0, width, 0);
   gradient.addColorStop(0, Utils.rgb(255, 0, 0));
   gradient.addColorStop(1, Utils.rgb(0, 0, 0));
@@ -91,11 +96,26 @@ function animate() {
   context.fillStyle = "white";
   context.fillText("Noham Pace", width / 2, height / 2 + 24);
 
-  // Moves the car
   moveCar();
-
-  // Draws the new car at the starting point
-  drawCar(carX + 15, height / 2 + 100);
-  
+  drawCar(carX, height / 2 + 100);
   requestAnimationFrame(animate);
+}
+
+// This code moves the car right/left when key is pressed
+function handleKeyDown(event) {
+  if (event.key === "ArrowRight") {
+    carSpeed = 2; 
+    driving = true; 
+  } else if (event.key === "ArrowLeft") {
+    carSpeed = -2; 
+    driving = true; 
+  }
+}
+
+// This code stops the car from moving when the key is not pressed
+function handleKeyUp(event) {
+  if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+    carSpeed = 0; // Stop the car when the key is released
+    driving = false; // Stop driving
+  }
 }
